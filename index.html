@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Occupancy Calibration Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <aside>
+    <div class="logo-container">
+      <div class="logo-icon">O</div>
+      <div class="logo-text">Occupancy Cal</div>
+    </div>
+
+    <div class="nav-section-title">Filters</div>
+    <div class="filter-group">
+      <label for="status-filter">Status</label>
+      <select id="status-filter">
+        <option value="">All statuses</option>
+        <option value="learning">Learning</option>
+        <option value="calibrated">Calibrated</option>
+        <option value="unpaired">Unpaired</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="org-filter">Organization ID</label>
+      <input id="org-filter" type="text" placeholder="Optional org UUID">
+    </div>
+    <div class="filter-group">
+      <label for="device-filter">Device ID</label>
+      <input id="device-filter" type="text" placeholder="Device UUID or DOZ-12345">
+    </div>
+    <div class="filter-group">
+      <label for="tag-filter">Latest status tag</label>
+      <select id="tag-filter">
+        <option value="">Any tag</option>
+        <option value="TWO_STATES">TWO_STATES</option>
+        <option value="MANUAL">MANUAL</option>
+        <option value="NOT_ENOUGH_DATA">NOT_ENOUGH_DATA</option>
+        <option value="SINGLE_STATE">SINGLE_STATE</option>
+        <option value="API_ERROR">API_ERROR</option>
+        <option value="ERROR">ERROR</option>
+        <option value="PAIRED">PAIRED</option>
+        <option value="UNPAIRED">UNPAIRED</option>
+      </select>
+    </div>
+
+    <button id="refresh-btn" class="btn-primary">Refresh</button>
+
+    <div class="nav-section-title">Pickle Paths</div>
+    <div class="filter-group">
+      <label for="efs-root-input">EFS root override</label>
+      <input id="efs-root-input" type="text" placeholder="Auto-detected if empty">
+    </div>
+
+    <div class="sidebar-footer">
+      <div id="mdb-endpoint-label">MDB: loading…</div>
+      <div id="last-updated">Not loaded yet</div>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+      <div class="header-title">
+        <h1>Device Occupancy Calibration</h1>
+        <p>Track MDB state and history for <code>device_occupancy_calibration</code></p>
+      </div>
+      <div class="search-box">
+        <input id="search-input" type="search" placeholder="Search device name, UUID, user, org…">
+      </div>
+    </header>
+
+    <div class="metrics-summary-grid">
+      <div class="summary-card glass">
+        <div class="summary-card-header">
+          <span class="summary-card-title">Total Records</span>
+        </div>
+        <div class="summary-card-value" id="stat-total">—</div>
+      </div>
+      <div class="summary-card glass">
+        <div class="summary-card-header">
+          <span class="summary-card-title">Learning</span>
+        </div>
+        <div class="summary-card-value status-learning" id="stat-learning">—</div>
+      </div>
+      <div class="summary-card glass">
+        <div class="summary-card-header">
+          <span class="summary-card-title">Calibrated</span>
+        </div>
+        <div class="summary-card-value status-calibrated" id="stat-calibrated">—</div>
+      </div>
+      <div class="summary-card glass">
+        <div class="summary-card-header">
+          <span class="summary-card-title">Unpaired</span>
+        </div>
+        <div class="summary-card-value status-unpaired" id="stat-unpaired">—</div>
+      </div>
+    </div>
+
+    <div id="error-banner" class="error-banner hidden"></div>
+
+    <section class="table-panel glass">
+      <div class="table-panel-header">
+        <h2>Devices</h2>
+        <span id="visible-count" class="muted">0 shown</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Device</th>
+              <th>User</th>
+              <th>Organization</th>
+              <th>Status</th>
+              <th>Paired At</th>
+              <th>First Eligible</th>
+              <th>Last Run</th>
+              <th>Latest Tag</th>
+            </tr>
+          </thead>
+          <tbody id="records-body">
+            <tr><td colspan="9" class="empty-row">Loading records…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js?v=4"></script>
+</body>
+</html>
