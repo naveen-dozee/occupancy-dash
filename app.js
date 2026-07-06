@@ -30,7 +30,7 @@ function escapeHtml(value) {
 
 function deviceLabel(record) {
   const name = record.device_name;
-  const id = record.device_id;
+  const id = record.DeviceId;
   if (name && id) {
     return `
       <div class="device-label">
@@ -87,7 +87,7 @@ function formatTimeWithIst(value) {
 }
 
 function latestHistoryEntry(record) {
-  const history = Array.isArray(record.history) ? record.history : [];
+  const history = Array.isArray(record.History) ? record.History : [];
   return history.length ? history[history.length - 1] : null;
 }
 
@@ -107,11 +107,11 @@ function buildQueryParams() {
   const orgId = $("org-filter").value.trim();
   const deviceId = $("device-filter").value.trim();
 
-  if (status) params.append("filter", `calibration_status:${status}`);
-  if (orgId) params.append("filter", `organization_id:${orgId}`);
+  if (status) params.append("filter", `CalibrationStatus:${status}`);
+  if (orgId) params.append("filter", `OrganizationId:${orgId}`);
   // UUID filter goes to MDB; DOZ-12345 style is filtered client-side.
   if (deviceId && /^[0-9a-f-]{36}$/i.test(deviceId)) {
-    params.append("filter", `device_id:${deviceId}`);
+    params.append("filter", `DeviceId:${deviceId}`);
   }
   params.append("limit", "2000");
   return params;
@@ -147,7 +147,7 @@ function getEfsRootOverride() {
 }
 
 async function enrichDeviceNames(records) {
-  const deviceIds = [...new Set(records.map((r) => r.device_id).filter(Boolean))];
+  const deviceIds = [...new Set(records.map((r) => r.DeviceId).filter(Boolean))];
   if (!deviceIds.length) return records;
 
   const params = new URLSearchParams();
@@ -159,7 +159,7 @@ async function enrichDeviceNames(records) {
     const names = await res.json();
     return records.map((record) => ({
       ...record,
-      device_name: record.device_name || names[record.device_id] || null,
+      device_name: record.device_name || names[record.DeviceId] || null,
     }));
   } catch {
     return records;
@@ -201,27 +201,27 @@ function filteredRecords() {
   return state.records
     .slice()
     .sort((a, b) => {
-      const aTime = a.last_run_at || a.paired_at || "";
-      const bTime = b.last_run_at || b.paired_at || "";
+      const aTime = a.LastRunAt || a.PairedAt || "";
+      const bTime = b.LastRunAt || b.PairedAt || "";
       return bTime.localeCompare(aTime);
     })
     .filter((record) => {
       if (deviceFilter && !/^[0-9a-f-]{36}$/i.test(deviceFilter)) {
         const name = (record.device_name || "").toLowerCase();
-        const id = (record.device_id || "").toLowerCase();
+        const id = (record.DeviceId || "").toLowerCase();
         if (!name.includes(deviceFilter) && !id.includes(deviceFilter)) return false;
       }
       if (tagFilter) {
         const latest = latestHistoryEntry(record);
-        if (!latest || latest.status_tag !== tagFilter) return false;
+        if (!latest || latest.StatusTag !== tagFilter) return false;
       }
       if (!search) return true;
       const haystack = [
         record.device_name,
-        record.device_id,
-        record.user_id,
-        record.organization_id,
-        record.calibration_status,
+        record.DeviceId,
+        record.UserId,
+        record.OrganizationId,
+        record.CalibrationStatus,
       ]
         .filter(Boolean)
         .join(" ")
@@ -233,7 +233,7 @@ function filteredRecords() {
 function updateStats(records) {
   const counts = { total: records.length, learning: 0, calibrated: 0, unpaired: 0 };
   for (const record of records) {
-    const status = record.calibration_status;
+    const status = record.CalibrationStatus;
     if (status in counts) counts[status] += 1;
   }
   $("stat-total").textContent = counts.total;
@@ -344,28 +344,28 @@ function renderPicklePanel(record) {
 }
 
 function renderHistory(record) {
-  const history = Array.isArray(record.history) ? [...record.history].reverse() : [];
+  const history = Array.isArray(record.History) ? [...record.History].reverse() : [];
   const historyBlock = history.length
     ? `
       <div class="history-panel">
         <h3>History (${history.length} events)</h3>
         <div class="timeline">${history
           .map((entry) => {
-            const details = entry.details || {};
-            const msg = details.msg || "";
+            const details = entry.Details || {};
+            const msg = details.Msg || "";
             const thresholds =
               details.OccupancyFsrBaseline != null
                 ? `Baseline ${details.OccupancyFsrBaseline}, Delta ${details.OccupancyFsrDelta}`
                 : "";
             const detailText = [msg, thresholds].filter(Boolean).join(" · ");
-            const transition = [entry.status_from, entry.status_to].filter(Boolean).join(" → ");
+            const transition = [entry.StatusFrom, entry.StatusTo].filter(Boolean).join(" → ");
 
             return `
               <div class="timeline-item">
-                <div class="timeline-time">${formatTime(entry.run_at)}</div>
+                <div class="timeline-time">${formatTime(entry.RunAt)}</div>
                 <div class="timeline-event">
-                  <div>${entry.event_type || "event"}</div>
-                  <div class="${tagClass(entry.status_tag)}">${entry.status_tag || "—"}</div>
+                  <div>${entry.EventType || "event"}</div>
+                  <div class="${tagClass(entry.StatusTag)}">${entry.StatusTag || "—"}</div>
                 </div>
                 <div class="timeline-detail">
                   <div>${transition || "—"}</div>
@@ -394,9 +394,9 @@ async function loadPickles(key) {
   render();
 
   const params = new URLSearchParams({
-    device_id: record.device_id || "",
-    user_id: record.user_id || "",
-    paired_at: record.paired_at || "",
+    device_id: record.DeviceId || "",
+    user_id: record.UserId || "",
+    paired_at: record.PairedAt || "",
   });
   const efsRoot = getEfsRootOverride();
   if (efsRoot) params.set("efs_root", efsRoot);
@@ -418,7 +418,7 @@ async function loadPickles(key) {
 }
 
 function rowKey(record) {
-  return `${record.device_id || ""}:${record.user_id || ""}`;
+  return `${record.DeviceId || ""}:${record.UserId || ""}`;
 }
 
 function render() {
@@ -436,7 +436,7 @@ function render() {
       const key = rowKey(record);
       const latest = latestHistoryEntry(record);
       const expanded = state.expanded.has(key);
-      const status = record.calibration_status || "unknown";
+      const status = record.CalibrationStatus || "unknown";
 
       const mainRow = `
         <tr>
@@ -444,13 +444,13 @@ function render() {
             <button class="expand-btn" data-key="${key}" aria-label="Toggle history">${expanded ? "−" : "+"}</button>
           </td>
           <td>${deviceLabel(record)}</td>
-          <td class="mono">${record.user_id || "—"}</td>
-          <td class="mono">${record.organization_id || "—"}</td>
+          <td class="mono">${record.UserId || "—"}</td>
+          <td class="mono">${record.OrganizationId || "—"}</td>
           <td><span class="badge ${badgeClass(status)}">${status}</span></td>
-          <td>${formatTimeWithIst(record.paired_at)}</td>
-          <td>${formatTimeWithIst(record.first_eligible_at)}</td>
-          <td>${formatTime(record.last_run_at)}</td>
-          <td class="${tagClass(latest?.status_tag)}">${latest?.status_tag || "—"}</td>
+          <td>${formatTimeWithIst(record.PairedAt)}</td>
+          <td>${formatTimeWithIst(record.FirstEligibleAt)}</td>
+          <td>${formatTime(record.LastRunAt)}</td>
+          <td class="${tagClass(latest?.StatusTag)}">${latest?.StatusTag || "—"}</td>
         </tr>
       `;
 

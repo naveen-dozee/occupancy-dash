@@ -103,11 +103,11 @@ def enrich_records(
     if not records:
         return records
 
-    device_ids = [record.get("device_id", "") for record in records if record.get("device_id")]
+    device_ids = [record.get("DeviceId", "") for record in records if record.get("DeviceId")]
     names = lookup_device_names(device_ids, devicesdb_endpoint=devicesdb_endpoint)
 
     for record in records:
-        device_id = record.get("device_id")
+        device_id = record.get("DeviceId")
         record["device_name"] = names.get(device_id) if device_id else None
 
     return records
