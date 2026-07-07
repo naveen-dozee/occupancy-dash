@@ -1,6 +1,6 @@
 # Occupancy Calibration Dashboard
 
-Basic internal dashboard for tracking `dozee.device_occupancy_calibration` MDB records — device calibration status, pairing timeline, and full history audit trail.
+Basic internal dashboard for tracking `dozee.fsrcalibration` MDB records — device calibration status, pairing timeline, and full history audit trail.
 
 ## Features
 
@@ -36,7 +36,7 @@ GET /api/pickles?device_id=...&user_id=...&paired_at=...
 Records come from:
 
 ```
-GET {MDB_ENDPOINT}/api/dozee/device_occupancy_calibration/query
+GET {MDB_ENDPOINT}/api/dozee/fsrcalibration/query
 ```
 
 See `fsr-threshold-estimator/docs/OCCUPANCY_CALIBRATION.md` for the full schema and status tag meanings.

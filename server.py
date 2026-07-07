@@ -17,7 +17,7 @@ DEVICESDB_ENDPOINT = "http://devicesdb-sit.dozee.int"
 PORT = 8765
 EFS_PICKLEFILES_DIR = get_efs_root()
 EFS_ROOT_EXISTS = os.path.isdir(EFS_PICKLEFILES_DIR)
-MDB_PATH = "/api/dozee/device_occupancy_calibration_sit/query"
+MDB_PATH = "/api/dozee/fsrcalibration_sit/query"
 DEFAULT_LIMIT = "2000"
 
 
