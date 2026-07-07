@@ -11,13 +11,13 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from device_names import enrich_records, lookup_device_names
 from pickle_inspector import get_efs_root, inspect_pickles
 
-MDB_ENDPOINT = "http://mdb-sit.dozee.int"
-RECORDSDB_ENDPOINT = "http://recordsdb-sit.dozee.int"
-DEVICESDB_ENDPOINT = "http://devicesdb-sit.dozee.int"
+MDB_ENDPOINT = "http://mdb.dozee.int"
+RECORDSDB_ENDPOINT = "http://recordsdb.dozee.int"
+DEVICESDB_ENDPOINT = "http://devicesdb.dozee.int"
 PORT = 8765
 EFS_PICKLEFILES_DIR = get_efs_root()
 EFS_ROOT_EXISTS = os.path.isdir(EFS_PICKLEFILES_DIR)
-MDB_PATH = "/api/dozee/fsrcalibration_sit/query"
+MDB_PATH = "/api/dozee/fsrcalibration/query"
 DEFAULT_LIMIT = "2000"
 
 

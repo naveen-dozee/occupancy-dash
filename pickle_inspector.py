@@ -12,8 +12,8 @@ from datetime import datetime, timezone
 from typing import Any, Optional
 
 MIN_FEATURE_EPOCHS = 360
-DEFAULT_EFS_DIR = "~/Desktop/efs/dozee/picklefiles-sit"
-DEFAULT_RECORDSDB = "http://recordsdb-sit.dozee.int"
+DEFAULT_EFS_DIR = "~/Desktop/efs/dozee/picklefiles"
+DEFAULT_RECORDSDB = "http://recordsdb.dozee.int"
 
 
 def parse_date(val: Any) -> Optional[datetime]:
