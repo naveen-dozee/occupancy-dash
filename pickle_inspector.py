@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import pickle
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -113,8 +114,21 @@ def build_efs_pickle_path(
 
 
 def _load_features_from_pickle(pkl_path: str) -> tuple[int, list[float]]:
-    with open(pkl_path, "rb") as handle:
-        sleep_data = pickle.load(handle)
+    last_err: Exception | None = None
+    for attempt in range(3):
+        try:
+            with open(pkl_path, "rb") as handle:
+                sleep_data = pickle.load(handle)
+            break
+        except Exception as exc:
+            last_err = exc
+            if attempt < 2:
+                time.sleep(0.5)
+                continue
+            raise last_err from exc
+    else:
+        raise last_err or RuntimeError(f"Failed to read pickle: {pkl_path}")
+
     features = sleep_data.get("sleep_occupancy_features", [])
     if not isinstance(features, list):
         features = []
@@ -123,6 +137,12 @@ def _load_features_from_pickle(pkl_path: str) -> tuple[int, list[float]]:
         ts = item.get("timestamp") if isinstance(item, dict) else None
         if isinstance(ts, (int, float)):
             timestamps.append(float(ts))
+        elif ts is not None:
+            # ponytail: numpy scalar etc. — coerce numeric timestamps
+            try:
+                timestamps.append(float(ts))
+            except (TypeError, ValueError):
+                pass
     return len(features), timestamps
 
 
@@ -279,6 +299,11 @@ def inspect_pickles(
         result["warning"] = (
             f"Found {eligible_sleeps} eligible sleep(s) since pairing, but no pickle files on disk. "
             f"Checked EFS root: {efs_root}"
+        )
+    elif pickles_found > 0 and merged_features == 0 and any(s.get("error") for s in sessions):
+        result["warning"] = (
+            "Pickle file exists but could not be read (likely being written by computeworker). "
+            "Refresh in a few seconds."
         )
 
     return result
